@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react'
 export default function Home() {
   const [showInput, setShowInput] = useState(false)
   const [slideUp, setSlideUp] = useState(false)
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false) // Will be used in the feature, if I ever touch this project again
   const [responses, setResponses] = useState([{ text: '' }])
   const [questions, setQuestions] = useState([''])
   const [userPrompt, setUserPrompt] = useState('')

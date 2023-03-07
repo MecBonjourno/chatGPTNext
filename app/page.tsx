@@ -1,91 +1,130 @@
+'use client'
 import Image from 'next/image'
-import { Inter } from 'next/font/google'
 import styles from './page.module.css'
-
-const inter = Inter({ subsets: ['latin'] })
+import Link from 'next/link'
+import { useEffect, useState } from 'react'
 
 export default function Home() {
+  const [showInput, setShowInput] = useState(false)
+  const [slideUp, setSlideUp] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [responses, setResponses] = useState([{ text: '' }])
+  const [questions, setQuestions] = useState([''])
+  const [userPrompt, setUserPrompt] = useState('')
+
+  const handleButtonClick = () => {
+    setShowInput(true)
+    setSlideUp(true)
+  }
+
+  const handleSendButtonClick = async () => {
+    setLoading(true)
+    console.log(`Sending message: ${userPrompt}`)
+    setQuestions((question) => [...question, userPrompt])
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        prompt: userPrompt,
+      }),
+    }).then((response) => response.json())
+    if (response.text !== null) {
+      setResponses((responses) => [...responses, response])
+    }
+    setLoading(false)
+  }
+
   return (
     <main className={styles.main}>
       <div className={styles.description}>
         <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>app/page.tsx</code>
+          Get more info on&nbsp;
+          <code className={styles.code}>
+            <Link href="https://medium.com/@poatek" className={styles.link}>
+              medium.com/@poatek
+            </Link>
+          </code>
         </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
+        <div className={`${styles.center} ${slideUp ? styles.centerTop : ''}`}>
+          <Image
+            className={`${styles.logo} ${slideUp ? styles.slideUp : ''}`}
+            src="/next.svg"
+            alt="Next.js Logo"
+            width={180}
+            height={37}
+            priority
+          />
+          <div className={styles.thirteen}>
             <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
+              src="/thirteen.svg"
+              alt="13"
+              width={40}
+              height={31}
               priority
             />
-          </a>
+          </div>
         </div>
       </div>
 
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-        <div className={styles.thirteen}>
-          <Image src="/thirteen.svg" alt="13" width={40} height={31} priority />
+      {showInput &&
+        questions.map((questions, i) => (
+          <div key={i}>
+            <div className={styles.question}>
+              <Image
+                src="/picture.jpg"
+                alt="picture of mecbonjourno's github"
+                width={64}
+                height={64}
+                className={styles.picture}
+              />
+              <p className={styles.questionText}>
+                <span className={styles.bold}>My Message:</span> {questions}
+              </p>
+            </div>
+            {responses ? (
+              <div className={styles.question}>
+                <Image
+                  src="/robot.webp"
+                  alt="a friendly robot"
+                  width={64}
+                  height={64}
+                  className={styles.picture}
+                />
+                <p className={styles.responseText}>
+                  <span className={styles.bold}>Robby The bot! Awnser:</span>{' '}
+                  {responses[i]?.text}
+                </p>
+              </div>
+            ) : (
+              <></>
+            )}
+          </div>
+        ))}
+
+      {showInput && (
+        <div className={styles.inputContainer}>
+          <input
+            type="text"
+            className={styles.textInput}
+            placeholder="Enter your message"
+            value={userPrompt}
+            onChange={(e) => setUserPrompt(e.target.value)}
+          />
+          <button className={styles.btnSend} onClick={handleSendButtonClick}>
+            Send!
+          </button>
         </div>
-      </div>
+      )}
 
-      <div className={styles.grid}>
-        <a
-          href="https://beta.nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={inter.className}>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p className={inter.className}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={inter.className}>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p className={inter.className}>Explore the Next.js 13 playground.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={inter.className}>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p className={inter.className}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
+      {showInput ? (
+        <></>
+      ) : (
+        <button className={styles.btn} onClick={handleButtonClick}>
+          Start Chatting
+        </button>
+      )}
     </main>
   )
 }
